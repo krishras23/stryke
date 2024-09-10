@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Instagram Unfollowers</title>
+    <style>
+      body {
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #8a3ab9, #4c68d7);
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .container {
+        width: 400px;
+        padding: 90px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      }
+
+      h2 {
+        color: #fff;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 24px;
+      }
+
+      #username,
+      #scrapeButton {
+        width: 400px;
+        padding: 12px;
+        border-radius: 25px;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+      }
+
+      #username {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: #fff;
+      }
+
+      #username::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      #scrapeButton {
+        background: linear-gradient(45deg, #405de6, #5851db, #833ab4);
+        color: white;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      #scrapeButton:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      #result {
+        margin-top: 20px;
+        padding: 10px;
+        font-size: 14px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        max-height: 350px;
+        overflow-y: auto;
+        color: black; /* Change text color to black */
+      }
+
+      .user {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .user img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .result-header {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      input[type="text"] {
+        text-align: center; /* Center the placeholder text */
+        width: 200px; /* Optional: set a specific width for the input */
+        padding: 10px; /* Optional: add padding for better aesthetics */
+      }
+
+      .user:last-child {
+        border-bottom: none;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          width: 90%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Instagram Unfollowers</h2>
+      <input type="text" id="username" placeholder="Username" />
+      <button id="scrapeButton">Submit</button>
+      <div id="result"></div>
+
+      <footer>
+        Made with &#x1F496; by
+        <a href="https://stryke.lol" target="_blank"> stryke.lol </a>
+      </footer>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
