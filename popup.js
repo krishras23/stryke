@@ -1,3 +1,30 @@
+(async () => {
+  const loginGate = document.getElementById("loginGate");
+  const appContent = document.getElementById("appContent");
+  const statusBadge = document.getElementById("statusBadge");
+  const statusText = document.getElementById("statusText");
+
+  try {
+    const result = await chrome.runtime.sendMessage({ action: "checkLogin" });
+    if (result && result.loggedIn) {
+      loginGate.style.display = "none";
+      appContent.classList.add("visible");
+      statusBadge.className = "status-badge active";
+      statusText.textContent = "Ready";
+    } else {
+      loginGate.style.display = "";
+      appContent.classList.remove("visible");
+      statusBadge.className = "status-badge";
+      statusText.textContent = "Logged out";
+    }
+  } catch {
+    loginGate.style.display = "";
+    appContent.classList.remove("visible");
+    statusBadge.className = "status-badge";
+    statusText.textContent = "Logged out";
+  }
+})();
+
 document.getElementById("scanBtn").addEventListener("click", async () => {
   const username = document.getElementById("username").value.trim();
   const userList = document.getElementById("userList");

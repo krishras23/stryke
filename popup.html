@@ -307,6 +307,52 @@
     }
     .filter-input::placeholder { color: var(--text-muted); }
     .filter-input:focus { border-color: var(--accent); }
+
+    .login-gate {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 32px;
+      text-align: center;
+    }
+    .login-gate svg {
+      width: 48px;
+      height: 48px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    .login-gate .login-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .login-gate .login-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .login-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: #0D0D0F;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .login-link:hover { background: var(--accent-hover); }
+    .login-link:active { transform: scale(0.97); }
+
+    .app-content { display: none; }
+    .app-content.visible { display: block; }
   </style>
 </head>
 <body>
@@ -318,33 +364,48 @@
     </div>
     <div class="status-badge" id="statusBadge">
       <span class="status-dot"></span>
-      <span id="statusText">Idle</span>
+      <span id="statusText">Checking…</span>
     </div>
   </div>
 
-  <div class="input-area">
-    <input class="search-input" type="text" id="username" placeholder="Enter Instagram username" spellcheck="false" autocomplete="off">
-    <button class="scan-btn" id="scanBtn">Scan</button>
+  <!-- Login gate -->
+  <div class="login-gate" id="loginGate">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+    <div class="login-title">Not logged in</div>
+    <div class="login-sub">You need to be signed into Instagram<br>in this browser for Stryke to work.</div>
+    <a class="login-link" href="https://www.instagram.com/accounts/login/" target="_blank">
+      Open Instagram Login
+    </a>
   </div>
 
-  <div class="stats-bar">
-    <div class="stat-chip accent">
-      <div class="stat-value" id="statUnfollowers">—</div>
-      <div class="stat-label">Don't follow back</div>
+  <!-- Main app (hidden until login confirmed) -->
+  <div class="app-content" id="appContent">
+    <div class="input-area">
+      <input class="search-input" type="text" id="username" placeholder="Enter Instagram username" spellcheck="false" autocomplete="off">
+      <button class="scan-btn" id="scanBtn">Scan</button>
     </div>
-  </div>
 
-  <div class="list-header">
-    <span class="list-title">Unfollowers</span>
-  </div>
+    <div class="stats-bar">
+      <div class="stat-chip accent">
+        <div class="stat-value" id="statUnfollowers">—</div>
+        <div class="stat-label">Don't follow back</div>
+      </div>
+    </div>
 
-  <div class="user-list" id="userList">
-    <div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      <div class="empty-title">No data yet</div>
-      <div class="empty-sub">Enter a username and hit Scan<br>to find who doesn't follow you back.</div>
+    <div class="list-header">
+      <span class="list-title">Unfollowers</span>
+    </div>
+
+    <div class="user-list" id="userList">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <div class="empty-title">No data yet</div>
+        <div class="empty-sub">Enter a username and hit Scan<br>to find who doesn't follow you back.</div>
+      </div>
     </div>
   </div>
 

@@ -1,4 +1,10 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "checkLogin") {
+    checkInstagramLogin()
+      .then((result) => sendResponse(result))
+      .catch(() => sendResponse({ loggedIn: false }));
+    return true;
+  }
   if (request.action === "scrapeInstagram") {
     scrapeInstagram(request.username)
       .then((result) => sendResponse(result))
@@ -6,6 +12,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; 
   }
 });
+
+async function checkInstagramLogin() {
+  const cookie = await chrome.cookies.get({
+    url: "https://www.instagram.com",
+    name: "sessionid",
+  });
+  return { loggedIn: Boolean(cookie && cookie.value) };
+}
 
 async function scrapeInstagram(username) {
   let followers = [];
