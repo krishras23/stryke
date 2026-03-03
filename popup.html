@@ -1,140 +1,357 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Instagram Unfollowers</title>
-    <style>
-      body {
-        width: 100%;
-        height: 100vh;
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #8a3ab9, #4c68d7);
-        color: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stryke</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-      .container {
-        width: 400px;
-        padding: 90px;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-      }
+    :root {
+      --bg: #0D0D0F;
+      --surface: #16161A;
+      --surface-hover: #1E1E23;
+      --border: #27272A;
+      --text: #FAFAFA;
+      --text-secondary: #A1A1AA;
+      --text-muted: #52525B;
+      --accent: #22C55E;
+      --accent-hover: #1AAD52;
+      --accent-glow: rgba(34, 197, 94, 0.15);
+    }
 
-      h2 {
-        color: #fff;
-        margin-bottom: 20px;
-        text-align: center;
-        font-size: 24px;
-      }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-      #username,
-      #scrapeButton {
-        width: 400px;
-        padding: 12px;
-        border-radius: 25px;
-        border: none;
-        outline: none;
-        font-size: 16px;
-        margin-bottom: 15px;
-        box-sizing: border-box;
-      }
+    body {
+      width: 360px;
+      min-height: 480px;
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
 
-      #username {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: #fff;
-      }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+    }
+    .brand {
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+    .status-badge.active {
+      color: var(--accent);
+      border-color: rgba(34, 197, 94, 0.3);
+      background: rgba(34, 197, 94, 0.08);
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .status-badge.active .status-dot {
+      background: var(--accent);
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+    }
 
-      #username::placeholder {
-        color: rgba(255, 255, 255, 0.7);
-      }
+    .input-area {
+      padding: 14px 18px;
+      display: flex;
+      gap: 8px;
+    }
+    .search-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus { border-color: var(--accent); }
 
-      #scrapeButton {
-        background: linear-gradient(45deg, #405de6, #5851db, #833ab4);
-        color: white;
-        cursor: pointer;
-        transition: transform 0.3s, box-shadow 0.3s;
-      }
+    .scan-btn {
+      background: var(--accent);
+      color: #0D0D0F;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .scan-btn:hover { background: var(--accent-hover); }
+    .scan-btn:active { transform: scale(0.97); }
+    .scan-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
 
-      #scrapeButton:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      }
+    .stats-bar {
+      display: flex;
+      gap: 8px;
+      padding: 0 18px 14px;
+    }
+    .stat-chip {
+      flex: 1;
+      text-align: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 4px;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .stat-label {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .stat-chip.accent .stat-value { color: var(--accent); }
 
-      #result {
-        margin-top: 20px;
-        padding: 10px;
-        font-size: 14px;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        max-height: 350px;
-        overflow-y: auto;
-        color: black; /* Change text color to black */
-      }
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px 0;
+    }
+    .list-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
 
-      .user {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-        padding: 10px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
+    .user-list {
+      padding: 8px 18px 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .user-list::-webkit-scrollbar { width: 4px; }
+    .user-list::-webkit-scrollbar-track { background: transparent; }
+    .user-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-      .user img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        margin-right: 15px;
-        background-color: rgba(255, 255, 255, 0.2);
-      }
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      transition: background 0.2s, transform 0.15s, opacity 0.3s;
+      opacity: 0;
+      transform: translateY(6px);
+      animation: fadeSlideIn 0.3s forwards;
+    }
+    .user-item:hover { background: var(--surface-hover); }
 
-      .result-header {
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 10px;
-      }
+    @keyframes fadeSlideIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-      input[type="text"] {
-        text-align: center; /* Center the placeholder text */
-        width: 200px; /* Optional: set a specific width for the input */
-        padding: 10px; /* Optional: add padding for better aesthetics */
-      }
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+    }
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+    }
+    .user-name:hover { color: var(--accent); }
+    .user-fullname {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-      .user:last-child {
-        border-bottom: none;
-      }
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .empty-state svg {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 12px;
+      opacity: 0.4;
+    }
+    .empty-state .empty-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-secondary);
+    }
+    .empty-state .empty-sub {
+      font-size: 11px;
+      line-height: 1.5;
+    }
 
-      footer {
-        text-align: center;
-        margin-top: 30px;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.7);
-      }
+    .progress-msg {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-      @media (max-width: 480px) {
-        .container {
-          width: 90%;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h2>Instagram Unfollowers</h2>
-      <input type="text" id="username" placeholder="Username" />
-      <button id="scrapeButton">Submit</button>
-      <div id="result"></div>
+    .error-msg {
+      margin: 12px 18px;
+      padding: 10px 14px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      border-radius: 10px;
+      color: #F87171;
+      font-size: 12px;
+    }
 
-      <footer>
-        Made with &#x1F496; by
-        <a href="https://stryke.lol" target="_blank"> stryke.lol </a>
-      </footer>
+    .footer {
+      text-align: center;
+      padding: 10px 18px 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+    .footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer a:hover { color: var(--accent); }
+
+    .filter-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      margin-bottom: 8px;
+      transition: border-color 0.2s;
+    }
+    .filter-input::placeholder { color: var(--text-muted); }
+    .filter-input:focus { border-color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-left">
+      <img class="logo" src="icon.png" alt="Stryke">
+      <span class="brand">Stryke</span>
     </div>
+    <div class="status-badge" id="statusBadge">
+      <span class="status-dot"></span>
+      <span id="statusText">Idle</span>
+    </div>
+  </div>
 
-    <script src="popup.js"></script>
-  </body>
+  <div class="input-area">
+    <input class="search-input" type="text" id="username" placeholder="Enter Instagram username" spellcheck="false" autocomplete="off">
+    <button class="scan-btn" id="scanBtn">Scan</button>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-chip accent">
+      <div class="stat-value" id="statUnfollowers">—</div>
+      <div class="stat-label">Don't follow back</div>
+    </div>
+  </div>
+
+  <div class="list-header">
+    <span class="list-title">Unfollowers</span>
+  </div>
+
+  <div class="user-list" id="userList">
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <div class="empty-title">No data yet</div>
+      <div class="empty-sub">Enter a username and hit Scan<br>to find who doesn't follow you back.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Built by <a href="https://stryke.lol" target="_blank">stryke.lol</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
 </html>
