@@ -13,12 +13,16 @@ document.getElementById("scrapeButton").addEventListener("click", async () => {
     } else {
       const dontFollowMeBack = response.dontFollowMeBack;
       resultDiv.innerHTML = `<h3 style="text-align: center;">Users who don't follow you back:</h3>`;
+
+      const { profilePicCache = {} } = await chrome.storage.local.get('profilePicCache');
+
       dontFollowMeBack.forEach((user) => {
+        const cachedPic = profilePicCache[user.username];
+        const imgSrc = cachedPic || getInitialsAvatar(user.username);
+        const fallback = getInitialsAvatar(user.username);
         resultDiv.innerHTML += `
           <div class="user">
-            <img src="${
-              user.profile_pic_url || getInitialsAvatar(user.username)
-            }" alt="${user.username}">
+            <img src="${imgSrc}" alt="${user.username}" onerror="this.src='${fallback}'">
             <div>
               <strong>${user.username}</strong><br>
               ${user.full_name}
@@ -53,3 +57,4 @@ function getInitialsAvatar(username) {
 
   return canvas.toDataURL();
 }
+

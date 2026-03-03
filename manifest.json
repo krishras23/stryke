@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "stryke.lol — instagram unfollowers",
-  "version": "1.4",
+  "version": "1.9",
   "description": "Find out who doesn't follow you back on Instagram",
   "icons": {
     "128": "icon.png"
@@ -12,5 +12,6 @@
   "background": {
     "service_worker": "background.js"
   },
-  "host_permissions": ["https://www.instagram.com/*"]
+  "permissions": ["storage"],
+  "host_permissions": ["https://www.instagram.com/*", "https://*.cdninstagram.com/*", "https://*.fbcdn.net/*"]
 }

@@ -42,6 +42,7 @@ async function scrapeInstagram(username) {
         data.data.user.edge_followed_by.edges.map(({ node }) => ({
           username: node.username,
           full_name: node.full_name,
+          profile_pic_url: node.profile_pic_url,
         }))
       );
     }
@@ -68,6 +69,7 @@ async function scrapeInstagram(username) {
         data.data.user.edge_follow.edges.map(({ node }) => ({
           username: node.username,
           full_name: node.full_name,
+          profile_pic_url: node.profile_pic_url,
         }))
       );
     }
@@ -77,6 +79,27 @@ async function scrapeInstagram(username) {
         (follower) => follower.username === following.username
       );
     });
+
+    // Fetch and cache profile pics as base64 so the popup can display them
+    const picCache = {};
+    await Promise.all(
+      dontFollowMeBack.map(async (user) => {
+        if (!user.profile_pic_url) return;
+        try {
+          const res = await fetch(user.profile_pic_url);
+          const blob = await res.blob();
+          const base64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+          picCache[user.username] = base64;
+        } catch {
+          // leave missing — popup will fall back to initials avatar
+        }
+      })
+    );
+    await chrome.storage.local.set({ profilePicCache: picCache });
 
     return { dontFollowMeBack };
   } catch (err) {
