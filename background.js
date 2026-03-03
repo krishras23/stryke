@@ -14,11 +14,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function checkInstagramLogin() {
-  const cookie = await chrome.cookies.get({
-    url: "https://www.instagram.com",
-    name: "sessionid",
-  });
-  return { loggedIn: Boolean(cookie && cookie.value) };
+  try {
+    const res = await fetch(
+      "https://www.instagram.com/web/search/topsearch/?query=instagram"
+    );
+    if (!res.ok) return { loggedIn: false };
+    const data = await res.json();
+    return { loggedIn: Array.isArray(data.users) && data.users.length > 0 };
+  } catch {
+    return { loggedIn: false };
+  }
 }
 
 async function scrapeInstagram(username) {
