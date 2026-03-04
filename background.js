@@ -62,6 +62,7 @@ async function scrapeInstagram(username) {
           username: node.username,
           full_name: node.full_name,
           profile_pic_url: node.profile_pic_url,
+          is_verified: node.is_verified,
         }))
       );
     }
@@ -89,6 +90,7 @@ async function scrapeInstagram(username) {
           username: node.username,
           full_name: node.full_name,
           profile_pic_url: node.profile_pic_url,
+          is_verified: node.is_verified,
         }))
       );
     }

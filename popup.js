@@ -65,7 +65,15 @@ document.getElementById("scanBtn").addEventListener("click", async () => {
 
       const { profilePicCache = {} } = await chrome.storage.local.get("profilePicCache");
 
-      userList.innerHTML = `<input class="filter-input" id="filterInput" type="text" placeholder="Filter usernames…" spellcheck="false">`;
+      userList.innerHTML = `
+        <input class="filter-input" id="filterInput" type="text" placeholder="Filter usernames…" spellcheck="false">
+        <div class="filter-row">
+          <label class="verified-label" for="verifiedToggle">Include verified</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="verifiedToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>`;
       const container = document.createElement("div");
 
       dontFollowMeBack.forEach((user, i) => {
@@ -76,6 +84,7 @@ document.getElementById("scanBtn").addEventListener("click", async () => {
         const item = document.createElement("div");
         item.className = "user-item";
         item.dataset.username = user.username.toLowerCase();
+        item.dataset.verified = user.is_verified ? "true" : "false";
         item.style.animationDelay = `${Math.min(i * 30, 300)}ms`;
 
         item.innerHTML = `
@@ -94,12 +103,23 @@ document.getElementById("scanBtn").addEventListener("click", async () => {
 
       userList.appendChild(container);
 
-      document.getElementById("filterInput").addEventListener("input", (e) => {
-        const q = e.target.value.toLowerCase();
+      function applyFilters() {
+        const q = document.getElementById("filterInput").value.toLowerCase();
+        const includeVerified = document.getElementById("verifiedToggle").checked;
+        let visible = 0;
         container.querySelectorAll(".user-item").forEach((item) => {
-          item.style.display = item.dataset.username.includes(q) ? "" : "none";
+          const matchesText = item.dataset.username.includes(q);
+          const matchesVerified = includeVerified || item.dataset.verified !== "true";
+          const show = matchesText && matchesVerified;
+          item.style.display = show ? "" : "none";
+          if (show) visible++;
         });
-      });
+        document.getElementById("statUnfollowers").textContent = visible;
+        statusText.textContent = `${visible} found`;
+      }
+
+      document.getElementById("filterInput").addEventListener("input", applyFilters);
+      document.getElementById("verifiedToggle").addEventListener("change", applyFilters);
     }
   } catch (error) {
     userList.innerHTML = `<div class="error-msg">${escapeHtml(error.message)}</div>`;
