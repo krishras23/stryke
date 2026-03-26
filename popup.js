@@ -120,6 +120,22 @@ document.getElementById("scanBtn").addEventListener("click", async () => {
 
       document.getElementById("filterInput").addEventListener("input", applyFilters);
       document.getElementById("verifiedToggle").addEventListener("change", applyFilters);
+
+      const copyBtn = document.getElementById("copyBtn");
+      copyBtn.style.display = "inline-block";
+      copyBtn.addEventListener("click", () => {
+        const visible = [...container.querySelectorAll('.user-item')]
+          .filter(item => item.style.display !== 'none')
+          .map(item => item.dataset.username);
+        navigator.clipboard.writeText(visible.join('\n')).then(() => {
+          copyBtn.textContent = "Copied!";
+          copyBtn.classList.add("copied");
+          setTimeout(() => {
+            copyBtn.textContent = "Copy";
+            copyBtn.classList.remove("copied");
+          }, 1500);
+        });
+      });
     }
   } catch (error) {
     userList.innerHTML = `<div class="error-msg">${escapeHtml(error.message)}</div>`;
