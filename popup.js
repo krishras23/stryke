@@ -11,6 +11,13 @@
       appContent.classList.add("visible");
       statusBadge.className = "status-badge active";
       statusText.textContent = "Ready";
+
+      // Restore cached results
+      const { cachedResults } = await chrome.storage.local.get("cachedResults");
+      if (cachedResults) {
+        document.getElementById("username").value = cachedResults.username;
+        renderResults(cachedResults.dontFollowMeBack);
+      }
     } else {
       loginGate.style.display = "";
       appContent.classList.remove("visible");
@@ -57,85 +64,14 @@ document.getElementById("scanBtn").addEventListener("click", async () => {
       statusBadge.className = "status-badge";
       statusText.textContent = "Error";
     } else {
-      const dontFollowMeBack = response.dontFollowMeBack;
-
-      document.getElementById("statUnfollowers").textContent = dontFollowMeBack.length;
-      statusBadge.className = "status-badge active";
-      statusText.textContent = `${dontFollowMeBack.length} found`;
-
-      const { profilePicCache = {} } = await chrome.storage.local.get("profilePicCache");
-
-      userList.innerHTML = `
-        <input class="filter-input" id="filterInput" type="text" placeholder="Filter usernames…" spellcheck="false">
-        <div class="filter-row">
-          <label class="verified-label" for="verifiedToggle">Include verified</label>
-          <label class="toggle-switch">
-            <input type="checkbox" id="verifiedToggle" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>`;
-      const container = document.createElement("div");
-
-      dontFollowMeBack.forEach((user, i) => {
-        const cachedPic = profilePicCache[user.username];
-        const imgSrc = cachedPic || getInitialsAvatar(user.username);
-        const fallback = getInitialsAvatar(user.username);
-
-        const item = document.createElement("div");
-        item.className = "user-item";
-        item.dataset.username = user.username.toLowerCase();
-        item.dataset.verified = user.is_verified ? "true" : "false";
-        item.style.animationDelay = `${Math.min(i * 30, 300)}ms`;
-
-        item.innerHTML = `
-          <img class="user-avatar" src="${imgSrc}" alt="${escapeHtml(user.username)}" onerror="this.src='${fallback}'">
-          <div class="user-info">
-            <div class="user-name">${escapeHtml(user.username)}</div>
-            <div class="user-fullname">${escapeHtml(user.full_name || "")}</div>
-          </div>`;
-
-        item.querySelector(".user-name").addEventListener("click", () => {
-          window.open(`https://instagram.com/${user.username}`, "_blank");
-        });
-
-        container.appendChild(item);
+      // Cache results
+      await chrome.storage.local.set({
+        cachedResults: {
+          username,
+          dontFollowMeBack: response.dontFollowMeBack,
+        },
       });
-
-      userList.appendChild(container);
-
-      function applyFilters() {
-        const q = document.getElementById("filterInput").value.toLowerCase();
-        const includeVerified = document.getElementById("verifiedToggle").checked;
-        let visible = 0;
-        container.querySelectorAll(".user-item").forEach((item) => {
-          const matchesText = item.dataset.username.includes(q);
-          const matchesVerified = includeVerified || item.dataset.verified !== "true";
-          const show = matchesText && matchesVerified;
-          item.style.display = show ? "" : "none";
-          if (show) visible++;
-        });
-        document.getElementById("statUnfollowers").textContent = visible;
-        statusText.textContent = `${visible} found`;
-      }
-
-      document.getElementById("filterInput").addEventListener("input", applyFilters);
-      document.getElementById("verifiedToggle").addEventListener("change", applyFilters);
-
-      const copyBtn = document.getElementById("copyBtn");
-      copyBtn.style.display = "inline-block";
-      copyBtn.addEventListener("click", () => {
-        const visible = [...container.querySelectorAll('.user-item')]
-          .filter(item => item.style.display !== 'none')
-          .map(item => item.dataset.username);
-        navigator.clipboard.writeText(visible.join('\n')).then(() => {
-          copyBtn.textContent = "Copied!";
-          copyBtn.classList.add("copied");
-          setTimeout(() => {
-            copyBtn.textContent = "Copy";
-            copyBtn.classList.remove("copied");
-          }, 1500);
-        });
-      });
+      renderResults(response.dontFollowMeBack);
     }
   } catch (error) {
     userList.innerHTML = `<div class="error-msg">${escapeHtml(error.message)}</div>`;
@@ -145,6 +81,90 @@ document.getElementById("scanBtn").addEventListener("click", async () => {
     document.getElementById("scanBtn").disabled = false;
   }
 });
+
+async function renderResults(dontFollowMeBack) {
+  const userList = document.getElementById("userList");
+  const statusBadge = document.getElementById("statusBadge");
+  const statusText = document.getElementById("statusText");
+
+  document.getElementById("statUnfollowers").textContent = dontFollowMeBack.length;
+  statusBadge.className = "status-badge active";
+  statusText.textContent = `${dontFollowMeBack.length} found`;
+
+  const { profilePicCache = {} } = await chrome.storage.local.get("profilePicCache");
+
+  userList.innerHTML = `
+    <input class="filter-input" id="filterInput" type="text" placeholder="Filter usernames…" spellcheck="false">
+    <div class="filter-row">
+      <label class="verified-label" for="verifiedToggle">Include verified</label>
+      <label class="toggle-switch">
+        <input type="checkbox" id="verifiedToggle" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>`;
+  const container = document.createElement("div");
+
+  dontFollowMeBack.forEach((user, i) => {
+    const cachedPic = profilePicCache[user.username];
+    const imgSrc = cachedPic || getInitialsAvatar(user.username);
+    const fallback = getInitialsAvatar(user.username);
+
+    const item = document.createElement("div");
+    item.className = "user-item";
+    item.dataset.username = user.username.toLowerCase();
+    item.dataset.verified = user.is_verified ? "true" : "false";
+    item.style.animationDelay = `${Math.min(i * 30, 300)}ms`;
+
+    item.innerHTML = `
+      <img class="user-avatar" src="${imgSrc}" alt="${escapeHtml(user.username)}" onerror="this.src='${fallback}'">
+      <div class="user-info">
+        <div class="user-name">${escapeHtml(user.username)}</div>
+        <div class="user-fullname">${escapeHtml(user.full_name || "")}</div>
+      </div>`;
+
+    item.querySelector(".user-name").addEventListener("click", () => {
+      window.open(`https://instagram.com/${user.username}`, "_blank");
+    });
+
+    container.appendChild(item);
+  });
+
+  userList.appendChild(container);
+
+  function applyFilters() {
+    const q = document.getElementById("filterInput").value.toLowerCase();
+    const includeVerified = document.getElementById("verifiedToggle").checked;
+    let visible = 0;
+    container.querySelectorAll(".user-item").forEach((item) => {
+      const matchesText = item.dataset.username.includes(q);
+      const matchesVerified = includeVerified || item.dataset.verified !== "true";
+      const show = matchesText && matchesVerified;
+      item.style.display = show ? "" : "none";
+      if (show) visible++;
+    });
+    document.getElementById("statUnfollowers").textContent = visible;
+    statusText.textContent = `${visible} found`;
+  }
+
+  document.getElementById("filterInput").addEventListener("input", applyFilters);
+  document.getElementById("verifiedToggle").addEventListener("change", applyFilters);
+
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.style.display = "inline-block";
+  copyBtn.addEventListener("click", () => {
+    const visible = [...container.querySelectorAll('.user-item')]
+      .filter(item => item.style.display !== 'none')
+      .map(item => item.dataset.username);
+    navigator.clipboard.writeText(visible.join('\n')).then(() => {
+      copyBtn.textContent = "Copied!";
+      copyBtn.classList.add("copied");
+      setTimeout(() => {
+        copyBtn.textContent = "Copy";
+        copyBtn.classList.remove("copied");
+      }, 1500);
+    });
+  });
+}
 
 document.getElementById("username").addEventListener("keydown", (e) => {
   if (e.key === "Enter") document.getElementById("scanBtn").click();
