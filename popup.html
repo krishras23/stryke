@@ -380,12 +380,15 @@
     }
 
     .login-gate {
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 60px 32px;
       text-align: center;
+    }
+    .login-gate.visible {
+      display: flex;
     }
     .login-gate svg {
       width: 48px;

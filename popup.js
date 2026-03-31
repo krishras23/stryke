@@ -4,31 +4,52 @@
   const statusBadge = document.getElementById("statusBadge");
   const statusText = document.getElementById("statusText");
 
-  try {
-    const result = await chrome.runtime.sendMessage({ action: "checkLogin" });
-    if (result && result.loggedIn) {
-      loginGate.style.display = "none";
-      appContent.classList.add("visible");
-      statusBadge.className = "status-badge active";
-      statusText.textContent = "Ready";
+  function showLoggedIn() {
+    loginGate.classList.remove("visible");
+    appContent.classList.add("visible");
+    statusBadge.className = "status-badge active";
+    statusText.textContent = "Ready";
+  }
 
-      // Restore cached results
-      const { cachedResults } = await chrome.storage.local.get("cachedResults");
-      if (cachedResults) {
-        document.getElementById("username").value = cachedResults.username;
-        renderResults(cachedResults.dontFollowMeBack);
-      }
-    } else {
-      loginGate.style.display = "";
-      appContent.classList.remove("visible");
-      statusBadge.className = "status-badge";
-      statusText.textContent = "Logged out";
-    }
-  } catch {
-    loginGate.style.display = "";
+  function showLoggedOut() {
+    loginGate.classList.add("visible");
     appContent.classList.remove("visible");
     statusBadge.className = "status-badge";
     statusText.textContent = "Logged out";
+  }
+
+  // Instantly restore last-known login state to avoid flash
+  const { wasLoggedIn } = await chrome.storage.local.get("wasLoggedIn");
+  if (wasLoggedIn) {
+    showLoggedIn();
+    const { cachedResults } = await chrome.storage.local.get("cachedResults");
+    if (cachedResults) {
+      document.getElementById("username").value = cachedResults.username;
+      renderResults(cachedResults.dontFollowMeBack);
+    }
+  }
+
+  // Then verify with a live check
+  try {
+    const result = await chrome.runtime.sendMessage({ action: "checkLogin" });
+    if (result && result.loggedIn) {
+      await chrome.storage.local.set({ wasLoggedIn: true });
+      showLoggedIn();
+      // Load cached results if we haven't already
+      if (!wasLoggedIn) {
+        const { cachedResults } = await chrome.storage.local.get("cachedResults");
+        if (cachedResults) {
+          document.getElementById("username").value = cachedResults.username;
+          renderResults(cachedResults.dontFollowMeBack);
+        }
+      }
+    } else {
+      await chrome.storage.local.set({ wasLoggedIn: false });
+      showLoggedOut();
+    }
+  } catch {
+    await chrome.storage.local.set({ wasLoggedIn: false });
+    showLoggedOut();
   }
 })();
 
